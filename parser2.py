@@ -9,7 +9,7 @@ def get_last_words_between_timestamp(filename, timestamp_start, timestamp_stop):
         print("------------------", line)
         try:
             timestamp = line.strip().split()[1]
-            time = datetime.strptime(timestamp, '%H:%M:%S.%f')
+            time = time_format(timestamp, '%H:%M:%S.%f')
             print("Time is", time)
             if timestamp_start <= time <= timestamp_stop:
                 word = line.strip().split()
