@@ -33,7 +33,6 @@ def get_signal_value(binary_frame,byte_position,bit_pos,lengh):
         print("TimeFormatDisplay is:",decimal_value)
         bool_value = True
     return bool_value
-
 hex_number = "60 20 45 6C FE 3D 4B AA"
 binary = parse_binary_frame(hex_number)
 print("Binary list=" ,binary)
