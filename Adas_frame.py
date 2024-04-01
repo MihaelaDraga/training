@@ -1,3 +1,6 @@
+import json
+import io
+import sys
 def convert_frame_to_binary(payload):
     parsed_binary_numbers = []
     for byte in payload:
@@ -101,6 +104,7 @@ def get_signal_value(binary_frame,byte_position,bit_pos,lengh,val_to_set):
     return hex_str
 def set_frame(hex_frame,payload_set,header_byte1,header_byte2,dlc_hex):
     hex_list = hex_frame.split()
+    print("hex_lisr is:",hex_list)
     hex_payload = [payload_set[i:i+2] for i in range(0, len(payload_set),2)]
     print("pay_set",hex_payload)
     payload = []
@@ -113,23 +117,33 @@ def set_frame(hex_frame,payload_set,header_byte1,header_byte2,dlc_hex):
                 payload_start = header_pos + 3
                 payload_stop = payload_start + int(dlc_hex)
                 payload = hex_list[payload_start:payload_stop]
+                print("payload is",payload)
             else:
                 print(f"Header not found")
-    new_hex_list=hex_list[:payload_start] + hex_payload + hex_list [payload_start:]
+   # print("Hex_list_payload is :" , payload)
+    print(hex_list[:payload_start])
+    print(hex_payload)
+    print(hex_list[payload_stop:])
+    new_hex_list=hex_list[:payload_start] + hex_payload + hex_list[payload_stop:]
+    print("Hex_list_payload is", new_hex_list)
     final_hex_frame =' '.join(new_hex_list)
     return final_hex_frame
-
 hex_frame = "00 06 02 08 80 00 00 00 00 00 00 00 00 05 D0 08 FF 60 00 00 02 00 00 00 00 06 01 08 80 00 00 00 00 00 00 00 00 00 10 C7 77 8A 70 AB AF 88 2A 8C"
-header_byte1 = '05'
-header_byte2 = 'D0'
+header_byte1 = '06'
+header_byte2 = '02'
 dlc_byte_lengh = '08'
+with open('ADAS_signals.json', 'r') as file:
+    dict_data=json.load(file)
+byte_pos_dw = dict_data.get("DW_FollowUpTimeDisplay",{}).get("BytePos",None)
+bit_pos_dw = dict_data.get("LCA_OverrideDisplay",{}).get("BitPos",None)
+print(f"Byte from DW is {byte_pos_dw} and bit from LCA is {bit_pos_dw}")
 lengh_data_pos = find_pos_DLC(hex_frame,dlc_byte_lengh)
 print(f"DLC was found at positions:{lengh_data_pos} and has payload lengh {int(dlc_byte_lengh)} bytes")
 payload_itself= find_payload(hex_frame,header_byte1,header_byte2,dlc_byte_lengh)
 print("Payload is:",payload_itself)
 payload_bin = convert_frame_to_binary(payload_itself)
 print("Payload binary list",payload_bin)
-signal_value = get_signal_value(payload_bin,4,7,6,45)
+signal_value = get_signal_value(payload_bin,2,5,2,2)
 print("The frame in hex is :", signal_value)
 final_frame = set_frame(hex_frame,signal_value,header_byte1,header_byte2,dlc_byte_lengh)
 print("Final frame is:",final_frame)

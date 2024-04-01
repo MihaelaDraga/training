@@ -1,39 +1,31 @@
 import json
 import io
 import sys
-def find_payload(hex_frame,sig_list):
+def find_head(element):
     with open('headers.json', 'r') as file:
         dict_data = json.load(file)
     hex_list = hex_frame.split()
     payload =[]
+    for i in range(len(hex_list) - 1):
+        if hex_list[i] == dict_data[element]['byte_header1'] and hex_list[i + 1] == dict_data[element]['byte_header2'] and hex_list[i + 2] == dict_data[element]['dlc']:
+            if i != -1:
+                print(
+                    f"Header {dict_data[element]['byte_header1'] + dict_data[element]['byte_header2']} + DLC: {dict_data[element]['dlc']} found at position '{i}'")
+                header_pos = i
+                payload_start = header_pos + 3
+                payload_stop = payload_start + int(dict_data[element]['dlc'])
+                payload = hex_list[payload_start:payload_stop]
+    return payload
+
+def find_payload(hex_frame,sig_list):
+    payload =[]
     for element in sig_list:
         if element == "LDW_head1":
-            for i in range(len(hex_list) - 1):
-                if hex_list[i] == dict_data['LDW_head1']['byte_header1'] and hex_list[i + 1] == dict_data['LDW_head1']['byte_header2'] and hex_list[i + 2] == dict_data['LDW_head1']['dlc']:
-                    if i != -1:
-                        print(f"Header {dict_data['LDW_head1']['byte_header1'] + dict_data['LDW_head1']['byte_header2']} + DLC: {dict_data['LDW_head1']['dlc']} found at position '{i}'")
-                        header_pos = i
-                        payload_start = header_pos + 3
-                        payload_stop = payload_start + int(dict_data['LDW_head1']['dlc'])
-                        payload1 = hex_list[payload_start:payload_stop]
+            payload1=find_head(element)
         elif element == "DW_head2":
-            for i in range(len(hex_list) - 1):
-                if hex_list[i] == dict_data['DW_head2']['byte_header1'] and hex_list[i + 1] == dict_data['DW_head2']['byte_header2'] and hex_list[i + 2] == dict_data['DW_head2']['dlc']:
-                    if i != -1:
-                        print(f"Header {dict_data['DW_head2']['byte_header1'] + dict_data['DW_head2']['byte_header2']} + DLC: {dict_data['DW_head2']['dlc']} found at position '{i}'")
-                        header_pos = i
-                        payload_start = header_pos + 3
-                        payload_stop = payload_start + int(dict_data['DW_head2']['dlc'])
-                        payload2 = hex_list[payload_start:payload_stop]
+            payload2 = find_head(element)
         elif element == "LCA_head3":
-            for i in range(len(hex_list) - 1):
-                if hex_list[i] == dict_data['LCA_head3']['byte_header1'] and hex_list[i + 1] == dict_data['LCA_head3']['byte_header2'] and hex_list[i + 2] == dict_data['LCA_head3']['dlc']:
-                    if i != -1:
-                        print(f"Header {dict_data['LCA_head3']['byte_header1'] + dict_data['LCA_head3']['byte_header2']} + DLC: {dict_data['LCA_head3']['dlc']} found at position '{i}'")
-                        header_pos = i
-                        payload_start = header_pos + 3
-                        payload_stop = payload_start + int(dict_data['LCA_head3']['dlc'])
-                        payload3 = hex_list[payload_start:payload_stop]
+            payload3 = find_head(element)
     return payload1,payload2,payload3
 def convert_frame_to_binary(payload):
     parsed_binary_numbers = []
@@ -85,20 +77,18 @@ def set_frame(hex_frame,signals_set_hex_list,element):
     with open('headers.json', 'r') as file:
         dict_data = json.load(file)
     hex_list = hex_frame.split()
-    hex_payload = [signals_set_hex_list[i:i+2] for i in range(0, len(signals_set_hex_list),2)]
+    hex_payload = [signals_set_hex_list[i:i+2].upper() for i in range(0, len(signals_set_hex_list),2)]
     payload = []
     for i in range(len(hex_list) - 1):
         if element == 'LDW_head1' and hex_list[i] == dict_data[element]['byte_header1'] and hex_list[i + 1] == dict_data[element]['byte_header2'] and hex_list[i + 2] == dict_data[element]['dlc']:
-                if i != -1:
-                    header_pos = i
-                    payload_start = header_pos + 3
-                    payload_stop = payload_start + int(dict_data[element]['dlc'])
-                    payload = hex_list[payload_start:payload_stop]
-                    new_hex_list = hex_list[:payload_start] + hex_payload + hex_list[payload_stop:]
-                    final_hex_frame1 = ' '.join(new_hex_list)
-                    return final_hex_frame1
+                header_pos = i
+                payload_start = header_pos + 3
+                payload_stop = payload_start + int(dict_data[element]['dlc'])
+                payload = hex_list[payload_start:payload_stop]
+                new_hex_list = hex_list[:payload_start] + hex_payload + hex_list[payload_stop:]
+                final_hex_frame1 = ' '.join(new_hex_list)
+                return final_hex_frame1
         elif element == sig_list[1] and hex_list[i] == dict_data[element]['byte_header1'] and hex_list[i + 1] == dict_data[element]['byte_header2'] and hex_list[i + 2] == dict_data[element]['dlc']:
-            if i != -1:
                 header_pos = i
                 payload_start = header_pos + 3
                 payload_stop = payload_start + int(dict_data[element]['dlc'])
@@ -107,7 +97,6 @@ def set_frame(hex_frame,signals_set_hex_list,element):
                 final_hex_frame2 = ' '.join(new_hex_list)
                 return final_hex_frame2
         elif element == sig_list[2] and hex_list[i] == dict_data[element]['byte_header1'] and hex_list[i + 1] == dict_data[element]['byte_header2'] and hex_list[i + 2] == dict_data[element]['dlc']:
-            if i != -1:
                 header_pos = i
                 payload_start = header_pos + 3
                 payload_stop = payload_start + int(dict_data[element]['dlc'])
@@ -116,7 +105,8 @@ def set_frame(hex_frame,signals_set_hex_list,element):
                 final_hex_frame3 = ' '.join(new_hex_list)
                 return final_hex_frame3
 def replace_frame(hex_frame,frames):
-    initial_list = hex_frame.split()
+    hexupper=hex_frame.upper()
+    initial_list = hexupper.split()
     replaced_frame = initial_list.copy()
     for frame in frames:
         frame_list=frame.split()
@@ -128,7 +118,7 @@ hex_frame = "00 06 02 08 80 00 00 00 00 00 00 00 00 05 D0 08 FF 60 00 00 02 00 0
 sig_list = ["LDW_head1", "DW_head2", "LCA_head3"]
 sig_list1 = ["LDW_AlertStatus", "DW_FollowUpTimeDisplay", "LCA_OverrideDisplay"]
 payload1, payload2, payload3 = find_payload(hex_frame,sig_list)
-print(f"Payload1 is:{payload1}, Payload2 is:{payload2} and Payload3 is:{payload3}")
+print(f"Payload1 is:{payload1}\nPayload2 is:{payload2}\nPayload3 is:{payload3}")
 pay1_bin = convert_frame_to_binary(payload1)
 pay2_bin = convert_frame_to_binary(payload2)
 pay3_bin = convert_frame_to_binary(payload3)

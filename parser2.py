@@ -6,12 +6,10 @@ def get_last_words_between_timestamp(filename, timestamp_start, timestamp_stop):
     file = open(filename, 'r')
     file = file.readlines()
     for line in file:
-        print("------------------", line)
         try:
             timestamp = line.strip().split()[1]
-            time = time_format(timestamp, '%H:%M:%S.%f')
-            print("Time is", time)
-            if timestamp_start <= time <= timestamp_stop:
+            time = datetime.strptime(timestamp, '%H:%M:%S.%f')
+            if timestamp_start <= time < timestamp_stop:
                 word = line.strip().split()
                 last_words.append(word[-1])
         except:
