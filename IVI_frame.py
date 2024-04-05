@@ -1,8 +1,4 @@
 import math
-def hex_to_binary(hex_number):
-    hex_bytes = hex_number.split()
-    binary_number = ''.join(bin(int(byte, 16))[2:].zfill((len(hex_number)*4)) for byte in hex_bytes)
-    return binary_number
 def parse_binary_frame(hex_frame):
     hex_bytes = hex_frame.split()
     print(hex_bytes)
@@ -37,4 +33,4 @@ hex_number = "60 20 45 6C FE 3D 4B AA"
 binary = parse_binary_frame(hex_number)
 print("Binary list=" ,binary)
 binary_string = ''.join(binary)
-print("Final value is ",get_signal_value(binary_string,5,7,4) )
+print("Final value is",get_signal_value(binary_string,5,7,4) )
