@@ -12,6 +12,9 @@ def get_char_from_ep_28():
         response = requests.get(url1)
         json_resp = response.json()
         list.append(json_resp['name'])
-    rick_names= [name for name in list if 'Rick' in name]
-    print("All characters from ep 28 with Rick name are:",rick_names)
+    rick_names= [name for name in list if 'Rick' in name ]
+    message = "All characters from ep 28 with Rick name are:"
+    print(message)
+    for item in rick_names:
+        print(f"- {item}")
 get_char_from_ep_28()
