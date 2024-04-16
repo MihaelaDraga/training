@@ -13,5 +13,8 @@ def get_char_from_ep_29():
         json_resp = response.json()
         list.append((json_resp['name'],json_resp['status']))
         chars_not_alive= [pair[0] for pair in list if pair[1] != "Alive"]
-    print("Chars from ep 29 that are not Alive:",chars_not_alive)
+    message = "Chars from ep 29 that are not Alive:"
+    print(message)
+    for item in chars_not_alive:
+        print(f" - {item}")
 get_char_from_ep_29()
