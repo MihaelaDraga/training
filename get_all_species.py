@@ -8,6 +8,7 @@ def get_all_species(ses3_type_list):
         json_file.write(f"{json_resp}")
     list=[]
     list1=[]
+    unique = []
     a=json_resp['info']['pages']
     for i in range(1,a,1):
         url=f'https://rickandmortyapi.com/api/character/?page={i}'
@@ -16,22 +17,17 @@ def get_all_species(ses3_type_list):
         for char in json_resp["results"]:
             for elem in ses3_type_list:
                 if char["type"] == elem:
-                    list.append(char["name"])
-                    a=char["name"]
-                    b=char["species"]
-                    c=char["type"]
-                    #print(f"{a} is species {b} and type {c}")
+                    list.append((char['name'],char['type']))
+                    for name, type in list:
+                        if not any(existing_name == name for existing_name, _ in unique):
+                            unique.append((name,type))
+                    break
                 else:
-                    list1.append(char["name"])
-    print("All season3 type names list is:",list)
-        #print("This names are not in season 3,",list1)
+                    list1.append(char['name'])
+    print("All season3 names - types are:")
+    for name, role in unique:
+        print(f"{name} - {role}")
     return list
-#def create_specific_list(list):
-#    unique_species = []
-#    for _, species , type in list:
-#        if species not in unique_species:
-#            unique_species.append(species)
-#    print(unique_species)
 def get_season_03():
     url='https://rickandmortyapi.com/api/episode/?episode=S03'
     response = requests.get(url)
@@ -57,9 +53,7 @@ def get_all_season3_types(list):
     flattened_list = [item for item in list_name_types if item]
     [unique_elem_list.append(element) for element in flattened_list if element not in unique_elem_list]
     return unique_elem_list
-
-
 list=get_season_03()
 ses3_type_list=get_all_season3_types(list)
-print("types",ses3_type_list)
+print("Season 3 types list" ,ses3_type_list)
 all_species=get_all_species(ses3_type_list)
